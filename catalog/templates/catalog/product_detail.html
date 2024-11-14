@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load catalog_tags %}
+
+
+
+{% block content %}
+
+<div class="col">
+
+    <div class="container-fluid">
+        <div class="row g-0">
+            <img src="{{ product.image | media_filter }}" style="max-width: 300px; min-height: 20vh; padding 5px; margin-right: 40px;">
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h3>{{ product.name }}</h3>
+                    <p class="card-text">{{ product.category }}</p>
+
+                    <p class="card-text">{{ product.description|truncatechars:100 }}</p>
+                    <br><br><br><br><br>
+                     <p class="card-text">{{ product.price }}</p>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Добавить в избранное</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary">Купить</button>
+                        </div>
+                        <a class="btn btn-sm btn-outline-secondary"
+                     href="{% url 'catalog:product_list' %}"
+                     role="button">Назад
+                  </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
