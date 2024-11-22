@@ -5,7 +5,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = ['name', 'category', 'description', 'image', 'price', 'created_at']
         labels = {'name': 'Name of new product',
                   'category': 'Category of product',
                   'description': 'Description of the product',
