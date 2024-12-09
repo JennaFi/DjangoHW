@@ -1,9 +1,19 @@
 import os
 from pathlib import Path
+from telnetlib import LOGOUT
+
 from dotenv import load_dotenv
-from django.conf.global_settings import STATICFILES_DIRS, MEDIA_URL, MEDIA_ROOT
+from django.conf.global_settings import STATICFILES_DIRS, MEDIA_URL, MEDIA_ROOT, AUTH_USER_MODEL, LOGIN_REDIRECT_URL
 
 load_dotenv(override=True)
+
+from django.conf.global_settings import (
+    DEFAULT_FROM_EMAIL,
+    LOGIN_REDIRECT_URL,
+    LOGIN_URL,
+    LOGOUT_REDIRECT_URL,
+    SERVER_EMAIL,
+)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -33,6 +43,7 @@ INSTALLED_APPS = [
 
     'catalog',
     'blog',
+    'users',
 
 ]
 
@@ -116,6 +127,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.mail.ru"
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SERVER_EMAIL = EMAIL_HOST_USER
+
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static',]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_root/')
@@ -123,6 +144,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static_root/')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+AUTH_USER_MODEL = 'users.User'
+
+LOGIN_REDIRECT_URL = 'catalog:product_list'
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = 'users:login'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
