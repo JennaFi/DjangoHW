@@ -1,0 +1,75 @@
+{% extends 'catalog/base.html' %}
+
+{% load catalog_tags %}
+
+{% block title %}Blog{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h1>My blog</h1>
+    <p>Some text</p>
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <a type="button" class="btn btn-sm btn-primary" href="{% url 'blog:article_create' %}">
+            Add new article
+        </a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+        {% for article in articles %}
+        <div class="col">
+            <div class="card shadow-sm">
+                <img src="{{ article.preview | media_filter }}" class="img-fluid"
+                     style="height: 20rem; object-fit: cover;">
+                <div class="card-body">
+                    <p class="card-text">{{ article.title }}</p>
+
+                    <p class="card-text">{{ article.content|truncatechars:50 }}</p>
+
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-primary"
+                           href="{% url 'blog:article_detail' article.pk %}"
+                           role="button">Read
+                        </a>
+                        {% if user == article.author or is_content_manager %}
+                        <a class="btn btn-sm btn-outline-secondary"
+                           href="{% url 'blog:article_update' article.pk %}"
+                           role="button">Redact
+                        </a>
+
+                        <a class="btn btn-sm btn-danger btn-out"
+                           href="{% url 'blog:article_delete' article.pk  %}"
+                           role="button">Delete
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% if user == article.author or is_content_manager %}
+                    {% if article.is_published %}
+                    <form action="{% url 'blog:article_unpublish' article.pk %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger mb-2 btn-sm w-100 mt-auto">
+                            Unpublish
+                        </button>
+                    </form>
+                    {% endif %}
+                    {% if not article.is_published %}
+                    <form action="{% url 'blog:article_publish' article.pk %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-success btn-sm w-100 mt-auto">
+                            Publish
+                        </button>
+                    </form>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+
+</div>
+{% endblock %}
