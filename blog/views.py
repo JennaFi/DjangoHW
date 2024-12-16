@@ -1,8 +1,10 @@
 from datetime import datetime
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -28,6 +30,16 @@ class ArticleDetailView(DetailView):
         self.object.save()
         return self.object
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        is_content_manager = self.request.user.groups.filter(
+            name="Контент-менеджер"
+        ).exists()
+
+        context['is_content_manager'] = is_content_manager
+        return context
+
 
 class ArticleListView(ListView):
     model = Article
@@ -36,6 +48,16 @@ class ArticleListView(ListView):
     queryset = Article.objects.filter(is_published=True)
     paginate_by = 5
     ordering = ['-created_at']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        is_content_manager = self.request.user.groups.filter(
+            name="Контент-менеджер"
+        ).exists()
+
+        context['is_content_manager'] = is_content_manager
+        return context
 
 class ArticleCreateView(CreateView):
     model = Article
@@ -66,7 +88,57 @@ class ArticleUpdateView(UpdateView):
     def form_invalid(self, form):
         return super().form_invalid(form)
 
+    def get_object_changed(self, request, *args, **kwargs):
+        article = super().get_object(*args, **kwargs)
+        if article.author == self.request.user:
+            return article
+        else:
+            raise PermissionDenied("You don't have permission to edit this article")
+
 class ArticleDeleteView(DeleteView):
     model = Article
     success_url = reverse_lazy("blog:article_list")
 
+    def get_object_changed(self, request, *args, **kwargs):
+        article = super().get_object(*args, **kwargs)
+        if article.author == self.request.user:
+            return article
+        else:
+            raise PermissionDenied("You don't have permission to delete this article")
+
+
+class ArticlePublishView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        article = get_object_or_404(Article, pk=pk)
+
+        if request.user.has_perm('blog.can_unpublish_article') and article:
+
+            article.is_published = True
+            article.save()
+            return redirect("blog:article_list")
+
+        if article.author == self.request.user:
+
+            article.is_published = True
+            article.save()
+            return redirect("blog:article_list")
+
+        return HttpResponseForbidden('You do not have permission to publish this article')
+
+class ArticleUnpublishView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        article = get_object_or_404(Article, pk=pk)
+
+        if request.user.has_perm('blog.can_unpublish_article'):
+
+            article.is_published = False
+            article.save()
+            return redirect("blog:article_list")
+
+        if article.author == self.request.user:
+
+            article.is_published = False
+            article.save()
+            return redirect("blog:article_list")
+
+        return HttpResponseForbidden('You do not have permission to unpublish this article')

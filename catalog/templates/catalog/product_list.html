@@ -34,15 +34,29 @@
                                href="{% url 'catalog:product_detail' product.pk %}"
                                role="button">Посмотреть
                             </a>
-                            <a class="btn btn-sm btn-outline-secondary"
-                               href="{% url 'catalog:product_update' product.pk %}"
-                               role="button">Редактировать
-                            </a>
-                            <button type="button" class="btn btn-sm btn-outline-secondary">Купить</button>
+                            {% if user == product.owner or is_moderator %}
                             <a class="btn btn-sm btn-danger btn-out"
                                href="{% url 'catalog:product_delete' product.pk %}"
                                role="button">Удалить
                             </a>
+                            {% endif %}
+
+                            {% if product.owner == user %}
+
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   href="{% url 'catalog:product_update' product.pk %}"
+                                   role="button">Редактировать
+                                </a>
+                            {% endif %}
+
+                            {% if is_moderator %}
+
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   href="{% url 'catalog:product_update' product.pk %}"
+                                   role="button">Снять с публикации
+                                </a>
+                            {% endif %}
+
                         </div>
 
                     </div>

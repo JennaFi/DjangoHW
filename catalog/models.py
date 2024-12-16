@@ -1,5 +1,7 @@
 from django.db import models
 
+from users.models import User
+
 
 class Category(models.Model):
     name = models.CharField(max_length=150, verbose_name='Category')
@@ -23,18 +25,23 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     views_counter = models.PositiveIntegerField(verbose_name='Views_counter', default=0)
+    is_published = models.BooleanField(default=False, verbose_name='Is_published', )
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_products', blank=True, null=True,
+                              verbose_name='User products')
 
     class Meta:
         verbose_name = 'Product'
         verbose_name_plural = 'Products'
         ordering = ['name', 'category', 'price']
+        permissions = [
+            ('can_unpublish_product', 'Can unpublish product')
+        ]
 
     def __str__(self):
         return f'{self.name}, {self.category}'
 
 
 class Contact(models.Model):
-
     first_name = models.CharField(max_length=150, verbose_name="Name")
     last_name = models.CharField(max_length=150, verbose_name="Last name")
     email = models.EmailField(verbose_name="Email")

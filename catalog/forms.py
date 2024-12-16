@@ -5,18 +5,42 @@ from django.db.models import BooleanField
 from catalog.models import Product
 
 
-class StyleFirmMixin:
+# class StyleFirmMixin:
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         for field_name, field in self.fields.items():
+#             if isinstance(field, BooleanField):
+#                 field.widget.attrs["class"] = "form-check-input"
+#             else:
+#                 field.widget.attrs["class"] = "form-control"
+#                 field.widget.attrs["placeholder"] = field.label
+
+
+class ProductForm(forms.ModelForm):
+
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            if isinstance(field, BooleanField):
-                field.widget.attrs["class"] = "form-check-input"
-            else:
-                field.widget.attrs["class"] = "form-control"
-                field.widget.attrs["placeholder"] = field.label
 
+        super(ProductForm, self).__init__(*args, **kwargs)
+        self.fields["name"].widget.attrs.update(
+            {"class": "form-control mb-3 mt-1", "placeholder": "Введите название товара", "required": True}
+        )
+        self.fields["description"].widget.attrs.update(
+            {"class": "form-control mb-3 mt-1", "placeholder": "Добавьте описание товара"}
+        )
+        self.fields["image"].widget.attrs.update(
+            {"class": "form-control mb-5 mt-1", "placeholder": "Загрузите изображение товара"}
+        )
+        self.fields["category"].widget.attrs.update({"class": "form-select mb-5 my-1"})
+        self.fields["price"].widget.attrs.update(
+            {
+                "class": "form-control mb-3 mt-1",
+                "placeholder": "Укажите цену товара с копейками",
+                "required": True,
+                "step": "0.01",
+            }
+        )
+        self.fields["is_published"].widget.attrs.update({"class": "form-check-input"})
 
-class ProductForm(StyleFirmMixin, forms.ModelForm):
     banned_words = [
         "казино",
         "криптовалюта",
@@ -68,4 +92,10 @@ class ProductForm(StyleFirmMixin, forms.ModelForm):
                   'price': 'Price of the product',
                   'created_at': 'created at'
                   }
-        exclude = ('views_counter',)
+        exclude = ('views_counter', 'owner')
+
+
+class ProductModeratorForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ('is_published',)

@@ -4,20 +4,61 @@
 
 <div class="container">
     {% if product %}
-    <h4>Редактировать товар</h4>
+     <h4>Редактировать товар</h4>
     {% else %}
     <h4>Добавить новый товар</h4>
     {% endif %}
+
+    {% if product.owner == user or is_moderator %}
+
+    <a type="button" class="btn btn-outline-danger btn-sm ms-2"
+                       href="{% url 'catalog:product_delete' product.pk %}">Удалить</a>
+    {% endif %}
+
     <p>Заполните форму для добавления или редактирования товара</p>
 
-    <div class="input-group mb-3">
-        <form class="horizontal" method="post" enctype="multipart/form-data">
+    <div class="card-body">
+                <form method="post" class="row g-3" enctype="multipart/form-data">
 
             <div class="card-header">
 
 
                 {% csrf_token %}
-                {{ form.as_p }}
+                {% if object and user != object.owner %}
+                    <div class="col-12">
+                        {{ form.is_published.label_tag }}
+                        {{ form.is_published }}
+                    </div>
+                {% else %}
+                    <div class="col-6">
+                        {{ form.name.label_tag }} *
+                        {{ form.name }}
+                        {{ form.name.errors }}
+                    </div>
+                    <div class="col-6">
+                        {{ form.price.label_tag }} *
+                        {{ form.price }}
+                        {{ form.price.errors }}
+                    </div>
+                    <div class="col-12">
+                        {{ form.description.label_tag }}
+                        {{ form.description }}
+                        {{ form.description.errors }}
+                    </div>
+                    <div class="col-6">
+                        {{ form.category.label_tag }} *
+                        {{ form.category }}
+                    </div>
+                    <div class="col-6">
+                        {{ form.image.label_tag }}
+                        {{ form.image }}
+                        {{ form.image.errors }}
+                    </div>
+                    <div class="col-12">
+                        {{ form.is_published.label_tag }}
+                        {{ form.is_published }}
+                    </div>
+                    {% endif %}
 
 
             </div>

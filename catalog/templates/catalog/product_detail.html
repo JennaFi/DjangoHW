@@ -22,16 +22,36 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="btn-group">
                             <button type="button" class="btn btn-sm btn-outline-secondary">Добавить в избранное</button>
-                            <button type="button" class="btn btn-sm btn-outline-primary">Купить</button>
-                        </div>
-                        <a class="btn btn-sm btn-outline-secondary"
+                            <a class="btn btn-sm btn-outline-primary"
                            href="{% url 'catalog:product_list' %}"
                            role="button">Назад
                         </a>
+
+                        </div>
+
+                        {% if perms.catalog.can_unpublish_product or user == product.owner %}
                         <a class="btn btn-sm btn-danger btn-out"
                            href="{% url 'catalog:product_delete' product.pk %}"
                            role="button">Удалить
                         </a>
+                        {% endif %}
+
+                        {% if product.owner == user %}
+                        <a class="btn btn-sm btn-outline-secondary"
+                           href="{% url 'catalog:product_update' product.pk %}"
+                           role="button">Редактировать
+                        </a>
+                        {% endif %}
+
+                        {% if perms.catalog.can_unpublish_product %}
+
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   href="{% url 'catalog:product_update' product.pk %}"
+                                   role="button">Снять с публикации
+                                </a>
+                        {% endif %}
+
+
                     </div>
                 </div>
             </div>
