@@ -1,0 +1,37 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+    <h4>Delete article</h4>
+
+
+    <p class="card-text">Are you sure you want to delete{{ article.title }}?</p>
+
+    <div class="input-group mb-3">
+        <form class="horizontal" method="post" enctype="multipart/form-data">
+
+            <div class="card-header">
+
+                {% csrf_token %}
+
+            </div>
+            <a class="btn btn-primary" href="{% url 'blog:article_detail' article.pk %}" role="button">
+                Back
+            </a>
+
+            <button type="submit" class="btn btn-danger">
+                Delete
+
+            </button>
+
+
+
+        </form>
+    </div>
+</div>
+
+
+
+{% endblock %}
