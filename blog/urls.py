@@ -7,9 +7,7 @@ from blog.views import ArticleListView, ArticleDetailView, ArticleCreateView, Ar
     ArticleUnpublishView, ArticlePublishView
 from config import settings
 
-
 app_name = BlogConfig.name
-
 
 urlpatterns = [
     path('blog/', ArticleListView.as_view(), name='article_list'),
@@ -18,7 +16,7 @@ urlpatterns = [
     path('blog/<int:pk>/update/', ArticleUpdateView.as_view(), name='article_update'),
     path('blog/<int:pk>/delete/', ArticleDeleteView.as_view(), name='article_delete'),
     path('<int:pk>/unpublish', ArticleUnpublishView.as_view(), name='article_unpublish'),
-    path('<int:pk>/publish',ArticlePublishView.as_view(), name='article_publish'),
+    path('<int:pk>/publish', ArticlePublishView.as_view(), name='article_publish'),
 
 ]
 if settings.DEBUG:

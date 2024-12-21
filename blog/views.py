@@ -59,6 +59,7 @@ class ArticleListView(ListView):
         context['is_content_manager'] = is_content_manager
         return context
 
+
 class ArticleCreateView(CreateView):
     model = Article
     fields = ['title', 'content', 'preview', 'is_published']
@@ -71,6 +72,7 @@ class ArticleCreateView(CreateView):
 
     def form_invalid(self, form):
         return super().form_invalid(form)
+
 
 class ArticleUpdateView(UpdateView):
     model = Article
@@ -95,6 +97,7 @@ class ArticleUpdateView(UpdateView):
         else:
             raise PermissionDenied("You don't have permission to edit this article")
 
+
 class ArticleDeleteView(DeleteView):
     model = Article
     success_url = reverse_lazy("blog:article_list")
@@ -112,31 +115,28 @@ class ArticlePublishView(LoginRequiredMixin, View):
         article = get_object_or_404(Article, pk=pk)
 
         if request.user.has_perm('blog.can_unpublish_article') and article:
-
             article.is_published = True
             article.save()
             return redirect("blog:article_list")
 
         if article.author == self.request.user:
-
             article.is_published = True
             article.save()
             return redirect("blog:article_list")
 
         return HttpResponseForbidden('You do not have permission to publish this article')
 
+
 class ArticleUnpublishView(LoginRequiredMixin, View):
     def post(self, request, pk):
         article = get_object_or_404(Article, pk=pk)
 
         if request.user.has_perm('blog.can_unpublish_article'):
-
             article.is_published = False
             article.save()
             return redirect("blog:article_list")
 
         if article.author == self.request.user:
-
             article.is_published = False
             article.save()
             return redirect("blog:article_list")

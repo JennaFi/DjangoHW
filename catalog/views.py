@@ -1,7 +1,5 @@
-from datetime import datetime
-from itertools import product
-
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
@@ -11,6 +9,7 @@ from django.views.generic import CreateView, ListView, DetailView, UpdateView, D
 
 from catalog.forms import ProductForm, ProductModeratorForm
 from catalog.models import Product, Contact, Category
+from catalog.services import get_products_by_category
 
 
 class ProductListView(ListView):
@@ -37,6 +36,24 @@ class ProductDetailView(DetailView, LoginRequiredMixin):
         self.object.views_counter += 1
         self.object.save()
         return self.object
+
+
+class ProductByCategoryDetailView(DetailView):
+    model = Category
+    template_name = 'catalog/product_list_by_category.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        category_id = self.object.id
+        is_moderator = self.request.user.groups.filter(
+            name='Модератор продуктов'
+        ).exists()
+
+        context['is_moderator'] = is_moderator
+        categories = Category.objects.all()
+        context['categories'] = categories
+        context['products'] = get_products_by_category(category_id)
+        return context
 
 
 class ProductCreateView(CreateView, LoginRequiredMixin):
@@ -84,7 +101,7 @@ class ProductDeleteView(DeleteView, LoginRequiredMixin):
 
 
 class ContactsView(TemplateView):
-    template_name = "catalog/contacts.html"
+    template_name = 'catalog/contacts.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
